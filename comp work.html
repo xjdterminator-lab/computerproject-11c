@@ -1,0 +1,411 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BrightNest — Login</title>
+  <style>
+    * { box-sizing: border-box; }
+    html,body {
+      height:100%;
+      margin:0;
+      font-family:Inter, system-ui;
+      background: linear-gradient(180deg,#f8fbff 0%, #eef7fa 100%);
+      color:#222;
+    }
+
+    .center-wrap {
+      min-height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:48px;
+    }
+
+    /* CARD - Standard login view */
+    .card {
+      width:100%;
+      max-width:920px;
+      background:#fff;
+      border-radius:16px;
+      box-shadow: 0 10px 30px rgba(15,30,60,0.08);
+      display:flex;
+      overflow:hidden;
+    }
+
+    /* AUTHENTICATED STATE STYLES (HOME PAGE) */
+    .card.is-authenticated {
+      max-width: 1200px; /* Wider for full app experience */
+      box-shadow: none; /* Remove shadow on card body */
+      border-radius: 0;
+      min-height: 100vh;
+      display: block; /* Change from flex to block for full-width home view */
+    }
+
+    /* Hide visual panel and make form panel full width when authenticated */
+    .card.is-authenticated .panel-visual {
+      display: none;
+    }
+    .card.is-authenticated .panel-form {
+      width: 100%;
+      padding: 0;
+    }
+    /* END AUTHENTICATED STATE STYLES */
+
+    /* LOGIN/SIGNUP PANELS (Original Styles - Do Not Change) */
+    .panel-visual {
+      width:46%;
+      min-width:300px;
+      background: linear-gradient(135deg,#ffd49a 0%, #ff9aa2 100%);
+      padding:40px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:16px;
+    }
+
+    .brand { display:flex; align-items:center; gap:12px; font-weight:700; font-size:20px; }
+    .logo {
+      width:44px;
+      height:44px;
+      border-radius:10px;
+      background: radial-gradient(circle at 30% 30%, #fff7ea, transparent 20%),
+                  linear-gradient(45deg,#ffb347, #ff6b6b);
+      box-shadow: 0 6px 18px rgba(255,107,107,0.18), inset 0 -4px 12px rgba(0,0,0,0.06);
+    }
+
+    .panel-visual h2 { margin:0; font-size:28px; }
+    .panel-form { width:54%; padding:36px 40px; display:flex; flex-direction:column; justify-content:center; gap:14px; }
+    .panel-form h1 { margin:0; font-size:26px; }
+
+    form { margin-top:14px; display:flex; flex-direction:column; gap:14px; }
+    .notice-above { font-size:13px; color:#3b82f6; font-weight:600; }
+
+    .input-row { position:relative; display:flex; align-items:center; gap:6px; }
+    input {
+      width:100%; padding:12px 14px; border-radius:8px;
+      border:1px solid #e6eef6; font-size:14px; background:#fbfdff;
+    }
+    input:focus {
+      border-color:#7dd3fc;
+      box-shadow:0 6px 18px rgba(34,197,94,0.06);
+      outline:none;
+    }
+
+    .btn {
+      padding:12px 18px;
+      border-radius:999px;
+      font-weight:700;
+      border:0;
+      cursor:pointer;
+      background:linear-gradient(90deg,#23a455,#0ea5a0);
+      color:white;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+
+    .eye-btn { background:transparent; border:0; cursor:pointer; padding:8px; }
+    .eye-btn svg { width:20px; height:20px; }
+
+    .small-err { color:#b91c1c; font-size:13px; }
+    /* END LOGIN/SIGNUP PANELS */
+
+    /* ----------------------------- */
+    /* HOME PAGE (NEW DESIGN/CONTENT)*/
+    /* ----------------------------- */
+
+    #homeView {
+      width:100%;
+    }
+
+    .home-header-hero {
+      width:100%;
+      padding:60px 20px;
+      background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+      text-align:center;
+      color:white;
+      border-radius: 0 0 24px 24px; /* Attractive rounded bottom */
+      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.3);
+    }
+
+    .hero-logo {
+      width:80px;
+      height:80px;
+      margin:auto;
+      border-radius:18px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, transparent 25%),
+                  linear-gradient(135deg,#7dd3fc,#38bdf8);
+      box-shadow:0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .hero-title {
+      font-size:34px;
+      font-weight:700;
+      margin-top:18px;
+    }
+    .hero-subtitle {
+        font-size: 18px;
+        font-weight: 300;
+        margin-top: 8px;
+        opacity: 0.9;
+    }
+
+    .home-content {
+      padding:30px 20px 60px 20px;
+      max-width:1100px;
+      margin:auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .section-box {
+      background:white;
+      padding:24px;
+      border-radius:14px;
+      box-shadow:0 6px 16px rgba(0,0,0,0.07);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .section-box:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+
+    .section-box h3 {
+      margin-top:0;
+      font-size:22px;
+      color:#0ea5a0;
+      border-left: 4px solid #0ea5a0;
+      padding-left: 12px;
+      margin-bottom: 15px;
+      flex-shrink: 0;
+    }
+    .section-box p {
+        font-size: 15px;
+        color: #444;
+        line-height: 1.6;
+    }
+    /* ----------------------------- */
+
+    @media (max-width:880px) {
+      .card { flex-direction:column; }
+      .panel-visual, .panel-form { width:100%; }
+      .center-wrap { padding: 0; }
+      .card.is-authenticated { min-height: 100vh; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="center-wrap">
+    <div class="card" id="appCard">
+
+      <!-- LEFT PANEL (UNTOUCHED) -->
+      <div class="panel-visual">
+        <div class="brand"><div class="logo"></div>BrightNest</div>
+        <h2>Good to meet you</h2>
+        <p>Login securely or create your account to access the learning homepage.</p>
+      </div>
+
+      <!-- RIGHT PANEL (LOGIN/SIGNUP UNCHANGED) -->
+      <div class="panel-form" id="authPanel">
+
+        <!-- LOGIN VIEW -->
+        <div id="loginView">
+          <h1>Welcome back</h1>
+          <form id="loginForm">
+            <div class="notice-above">make an account if new right</div>
+
+            <label>Your email</label>
+            <input id="loginEmail" type="email" required />
+
+            <label>Your password</label>
+            <div class="input-row">
+              <input id="loginPassword" type="password" required />
+              <button type="button" class="eye-btn" id="eyeLogin">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+
+            <button class="btn" type="submit">Sign in</button>
+            <div style="font-size:13px; text-align:right;"><a href="#" id="showSignup">Create account</a></div>
+            <div id="loginMsg" class="small-err"></div>
+          </form>
+        </div>
+
+        <!-- SIGNUP VIEW -->
+        <div id="signupView" style="display:none;">
+          <h1>Create account</h1>
+          <form id="signupForm">
+            <div class="notice-above">make an account if new right</div>
+
+            <label>Email (Gmail only)</label>
+            <input id="signupEmail" type="email" required />
+
+            <label>Password</label>
+            <div class="input-row">
+              <input id="signupPassword" type="password" required />
+              <button type="button" class="eye-btn" id="eyeSignup">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+
+            <button class="btn" type="submit">Make account</button>
+            <div style="font-size:13px; text-align:right;"><a href="#" id="showLogin">Back to sign in</a></div>
+            <div id="signupMsg" class="small-err"></div>
+          </form>
+        </div>
+
+        <!-- ============================ -->
+        <!-- HOME PAGE (RE-DESIGNED)      -->
+        <!-- ============================ -->
+        <div id="homeView" style="display:none; width:100%;">
+
+          <!-- HERO HEADER -->
+          <div class="home-header-hero">
+            <div class="hero-logo"></div>
+            <div class="hero-title">BrightNest Learning Platform</div>
+            <div class="hero-subtitle">Your daily source for concise, powerful knowledge. Explore our curated topics below.</div>
+          </div>
+
+          <!-- MAIN CONTENT (GRID LAYOUT) -->
+          <div class="home-content">
+
+            <div class="section-box">
+              <h3>Classification of Computers (By Size)</h3>
+              <p>Computers are electronic machines that process data and perform calculations at extremely high speed. One of the most common ways to classify computers is on the basis of size and performance. This classification includes four main categories: <strong>Supercomputers</strong>, <strong>Mainframe Computers</strong>, <strong>Minicomputers</strong>, and <strong>Microcomputers</strong>.</p>
+            </div>
+
+            <div class="section-box">
+              <h3>Supercomputers</h3>
+              <p>Supercomputers are the fastest, largest, and most powerful computers, capable of performing trillions of calculations per second (teraflops/petaflops). They are used for complex tasks such as climate forecasting, nuclear simulations, large-scale genome sequencing, and processing massive scientific data. They typically occupy dedicated, temperature-controlled rooms and cost tens of millions of dollars.</p>
+            </div>
+
+            <div class="section-box">
+              <h3>Mainframe Computers </h3>
+              <p>Mainframes are very large and powerful machines designed for high-volume, continuous computation. They are essential for organizations like banks, airlines, universities, and government offices to handle transactions, customer data, and mission-critical applications. They support thousands of users simultaneously via dumb terminals or network connections, emphasizing reliability and data security.</p>
+            </div>
+
+            <div class="section-box">
+              <h3>Minicomputers (Midrange Servers)</h3>
+              <p>Minicomputers are mid-sized machines that fall between mainframes and microcomputers in terms of processing capacity. They can support multiple users and are often used as departmental servers in medium-sized organizations, laboratories, and manufacturing facilities. Though the term is somewhat obsolete, the role is now largely filled by powerful midrange servers.</p>
+            </div>
+
+            <div class="section-box">
+              <h3>Microcomputers (Personal Computers)</h3>
+              <p>Microcomputers include desktops, laptops, tablets, and smartphones. They are designed for single-user interaction, though they can be networked. They are the most widely used type of computer globally, characterized by their small size and relatively low cost. Their versatility makes them suitable for everything from office work and gaming to advanced programming.</p>
+            </div>
+
+            <div class="section-box">
+              <h3>The Fifth Generation: AI Integration</h3>
+              <p>Beyond the standard size classification, the fifth generation of computing focuses heavily on **Artificial Intelligence (AI)**. These computers aim to process natural language and solve highly complex problems using technologies like machine learning, deep learning, and neural networks, moving towards systems that can reason and learn like humans.</p>
+            </div>
+
+            <button class="btn" id="logoutBtn" style="background:linear-gradient(90deg,#ef4444,#f97316); margin-top:20px; grid-column: 1 / -1; max-width: 200px; margin-left: auto; margin-right: auto;">
+              Sign out
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Global variable access from canvas environment
+  const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+  // NOTE: Firebase setup is not required as per the original code's use of localStorage for simulated authentication.
+  
+  const loginForm = document.getElementById('loginForm');
+  const signupForm = document.getElementById('signupForm');
+  const loginEmail = document.getElementById('loginEmail');
+  const loginPassword = document.getElementById('loginPassword');
+  const signupEmail = document.getElementById('signupEmail');
+  const signupPassword = document.getElementById('signupPassword');
+  const loginMsg = document.getElementById('loginMsg');
+  const signupMsg = document.getElementById('signupMsg');
+
+  const loginView = document.getElementById('loginView');
+  const signupView = document.getElementById('signupView');
+  const homeView = document.getElementById('homeView');
+  const appCard = document.getElementById('appCard'); // Get the main card element
+
+  function isGmailAddress(email){ return email.toLowerCase().endsWith('@gmail.com'); }
+  
+  // Using localStorage for simulated persistence (as per original code)
+  function saveAccount(e,p){ localStorage.setItem('acct', JSON.stringify({email:e,password:p})); }
+  function getAccount(){ return JSON.parse(localStorage.getItem('acct') || 'null'); }
+
+  // UI toggle functions
+  document.getElementById('showSignup').onclick = () => { loginView.style.display='none'; signupView.style.display=''; };
+  document.getElementById('showLogin').onclick = () => { signupView.style.display='none'; loginView.style.display=''; };
+
+  // Signup Logic
+  signupForm.onsubmit = e => {
+    e.preventDefault();
+    signupMsg.textContent = '';
+    if (!isGmailAddress(signupEmail.value)) return signupMsg.textContent='Use Gmail only.';
+    if (signupPassword.value.length < 6) return signupMsg.textContent='Password must be 6+ chars.';
+    
+    saveAccount(signupEmail.value, signupPassword.value);
+    
+    // Switch to Home View and update card styling
+    signupView.style.display='none'; 
+    homeView.style.display='';
+    appCard.classList.add('is-authenticated'); // Set full-width home style
+  };
+
+  // Login Logic
+  loginForm.onsubmit = e => {
+    e.preventDefault();
+    loginMsg.textContent='';
+    const acct = getAccount();
+    
+    if (!acct) return loginMsg.textContent='Create an account first.';
+    
+    if (loginEmail.value !== acct.email || loginPassword.value !== acct.password)
+      return loginMsg.textContent='Wrong email or password.';
+      
+    // Switch to Home View and update card styling
+    loginView.style.display='none'; 
+    homeView.style.display='';
+    appCard.classList.add('is-authenticated'); // Set full-width home style
+  };
+
+  // Logout Logic
+  document.getElementById('logoutBtn').onclick = () => {
+    homeView.style.display='none';
+    loginView.style.display='';
+    appCard.classList.remove('is-authenticated'); // Revert to login card style
+  };
+
+  // Password visibility toggle
+  function attachEye(btn,input){
+    btn.onmousedown = () => input.type='text';
+    document.onmouseup = () => input.type='password';
+    btn.ontouchstart = e => { e.preventDefault(); input.type='text'; };
+    document.ontouchend = () => input.type='password';
+  }
+
+  attachEye(document.getElementById('eyeLogin'), loginPassword);
+  attachEye(document.getElementById('eyeSignup'), signupPassword);
+
+  // Initial load state update: Always display the Login panel first.
+  // This explicitly ensures loginView is visible and signupView is hidden,
+  // overriding the previous logic that forced signup if no account existed.
+  loginView.style.display = '';
+  signupView.style.display = 'none';
+
+</script>
+
+</body>
+</html>
